@@ -1,0 +1,31 @@
+{
+  "admin": {
+    "brand": "Depad admin",
+    "login": {
+      "title": "Log in",
+      "description": "Admin access for the Depad team.",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Log in",
+      "submitting": "Logging in…",
+      "expired": "Your session expired, please log in again.",
+      "invalidEmail": "Enter a valid email address.",
+      "passwordRequired": "Enter your password."
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "openMenu": "Open menu",
+      "logout": "Log out"
+    },
+    "dashboard": {
+      "title": "Welcome back",
+      "subtitle": "Signed in as {email}.",
+      "comingSoon": "More sections appear here as they are built."
+    },
+    "errors": {
+      "unreachable": "The server cannot be reached. Check your connection and try again.",
+      "unexpected": "Something went wrong. Please try again."
+    },
+    "saved": "Saved"
+  }
+}
