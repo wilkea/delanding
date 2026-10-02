@@ -1,7 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { LayoutDashboard, LogOut, Menu, type LucideIcon } from "lucide-react";
+import { FolderTree, LayoutDashboard, LogOut, Menu, Shapes, SlidersHorizontal, Tag, type LucideIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -15,9 +15,22 @@ import { api } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "./use-current-user";
 
-type NavItem = { href: string; label: "dashboard"; icon: LucideIcon };
+type NavLabel = "dashboard" | "attributes" | "types" | "categories" | "brands";
+type NavItem = { href: string; label: NavLabel; icon: LucideIcon };
+type NavGroup = { title?: "catalog"; items: NavItem[] };
 
-const navigation: NavItem[] = [{ href: "/admin", label: "dashboard", icon: LayoutDashboard }];
+const navigation: NavGroup[] = [
+  { items: [{ href: "/admin", label: "dashboard", icon: LayoutDashboard }] },
+  {
+    title: "catalog",
+    items: [
+      { href: "/admin/catalog/attributes", label: "attributes", icon: SlidersHorizontal },
+      { href: "/admin/catalog/types", label: "types", icon: Shapes },
+      { href: "/admin/catalog/categories", label: "categories", icon: FolderTree },
+      { href: "/admin/catalog/brands", label: "brands", icon: Tag },
+    ],
+  },
+];
 
 function isActive(pathname: string, href: string) {
   return href === "/admin" ? pathname === "/admin" : pathname === href || pathname.startsWith(`${href}/`);
@@ -41,21 +54,26 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       <Link href="/admin" onClick={onNavigate} className="px-2 pt-1">
         <Image src="/brand/wordmark-black.png" alt="Depad" width={110} height={49} className="h-auto w-24" />
       </Link>
-      <nav className="flex flex-1 flex-col gap-1" aria-label="Admin">
-        {navigation.map(({ href, label, icon: Icon }) => (
-          <Link
-            key={href}
-            href={href}
-            onClick={onNavigate}
-            aria-current={isActive(pathname, href) ? "page" : undefined}
-            className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
-              isActive(pathname, href) && "bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary",
-            )}
-          >
-            <Icon className="size-4" />
-            {t(label)}
-          </Link>
+      <nav className="flex flex-1 flex-col gap-4 overflow-y-auto" aria-label="Admin">
+        {navigation.map((group, index) => (
+          <div key={group.title ?? index} className="flex flex-col gap-1">
+            {group.title && <p className="px-3 text-xs font-medium tracking-wide text-muted-foreground/70 uppercase">{t(group.title)}</p>}
+            {group.items.map(({ href, label, icon: Icon }) => (
+              <Link
+                key={href}
+                href={href}
+                onClick={onNavigate}
+                aria-current={isActive(pathname, href) ? "page" : undefined}
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+                  isActive(pathname, href) && "bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary",
+                )}
+              >
+                <Icon className="size-4" />
+                {t(label)}
+              </Link>
+            ))}
+          </div>
         ))}
       </nav>
       <Separator />

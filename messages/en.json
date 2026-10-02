@@ -14,6 +14,11 @@
     },
     "nav": {
       "dashboard": "Dashboard",
+      "catalog": "Catalog",
+      "attributes": "Attributes",
+      "types": "Product types",
+      "categories": "Categories",
+      "brands": "Brands",
       "openMenu": "Open menu",
       "logout": "Log out"
     },
@@ -22,10 +27,89 @@
       "subtitle": "Signed in as {email}.",
       "comingSoon": "More sections appear here as they are built."
     },
+    "common": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "remove": "Remove",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "empty": "Nothing here yet."
+    },
+    "attributes": {
+      "title": "Attributes",
+      "description": "The shared library of product properties: size, color, thickness…",
+      "new": "New attribute",
+      "edit": "Edit attribute",
+      "dialogHint": "Fill Romanian first; Russian can follow later.",
+      "search": "Search attributes",
+      "name": "Name",
+      "code": "Code",
+      "type": "Type",
+      "unit": "Unit",
+      "filterable": "Filterable",
+      "options": "Options",
+      "optionLabel": "Option label",
+      "optionCode": "Code",
+      "optionCodeLocked": "Saved options keep their code; products refer to it.",
+      "addOption": "Add option",
+      "deleteTitle": "Delete attribute “{name}”?",
+      "deleteHint": "Attributes used by a product type cannot be deleted.",
+      "types": {
+        "Option": "One option",
+        "MultiOption": "Several options",
+        "Number": "Number",
+        "Boolean": "Yes / no",
+        "Text": "Text",
+        "LocalizedText": "Text (RO/RU)"
+      }
+    },
+    "types": {
+      "title": "Product types",
+      "description": "A type decides which attributes its products have and which ones create variants.",
+      "new": "New product type",
+      "edit": "Edit product type",
+      "name": "Name",
+      "code": "Code",
+      "attributes": "Attributes",
+      "attributesHint": "Required: must be filled before publishing. Variant: each option becomes a separate variant (only for one-option attributes).",
+      "required": "Required",
+      "variant": "Variant",
+      "axisOnlyOption": "Only one-option attributes can create variants.",
+      "addAttribute": "Add attribute…",
+      "deleteTitle": "Delete product type “{name}”?",
+      "legend": "Purple badge = creates variants, * = required."
+    },
+    "categories": {
+      "title": "Categories",
+      "description": "The storefront menu. Inactive categories are hidden from customers.",
+      "new": "New category",
+      "edit": "Edit category",
+      "name": "Name",
+      "slug": "URL slug",
+      "parent": "Parent",
+      "noParent": "None (top level)",
+      "order": "Order",
+      "active": "Active",
+      "inactive": "Hidden",
+      "addChild": "Add sub-category to",
+      "deleteTitle": "Delete category “{name}”?"
+    },
+    "brands": {
+      "title": "Brands",
+      "new": "New brand",
+      "edit": "Edit brand",
+      "name": "Name",
+      "slug": "URL slug",
+      "deleteTitle": "Delete brand “{name}”?"
+    },
     "errors": {
       "unreachable": "The server cannot be reached. Check your connection and try again.",
       "unexpected": "Something went wrong. Please try again."
     },
-    "saved": "Saved"
+    "notSaved": "Not saved: {count, plural, one {# problem} other {# problems}}",
+    "saved": "Saved",
+    "deleted": "Deleted"
   }
 }
