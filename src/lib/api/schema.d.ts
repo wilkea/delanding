@@ -3948,6 +3948,7 @@ export interface components {
             };
             /** Format: int32 */
             sortOrder: number | string;
+            swatch?: null | string[];
         };
         AttributeResponse: {
             /** Format: uuid */
@@ -3959,6 +3960,7 @@ export interface components {
             dataType: components["schemas"]["AttributeDataType"];
             unit: null | string;
             isFilterable: boolean;
+            showAsSwatches: boolean;
             options: components["schemas"]["AttributeOptionDto"][];
         };
         BrandRequest: {
@@ -4050,6 +4052,8 @@ export interface components {
             unit: null | string;
             isFilterable: boolean;
             options: null | components["schemas"]["AttributeOptionDto"][];
+            /** @default false */
+            showAsSwatches: boolean;
         };
         CreateProductRequest: {
             /** Format: uuid */
@@ -4666,6 +4670,7 @@ export interface components {
             minPrice: null | number | string;
             /** Format: date-time */
             updatedAt: string;
+            mainImageUrl: null | string;
         };
         ProductTypeAttributeDto: {
             /** Format: uuid */
@@ -4957,6 +4962,8 @@ export interface components {
             unit: null | string;
             isFilterable: boolean;
             options: null | components["schemas"]["AttributeOptionDto"][];
+            /** @default false */
+            showAsSwatches: boolean;
         };
         UpdateProductRequest: {
             /** Format: uuid */

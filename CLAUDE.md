@@ -25,7 +25,7 @@ Storefront and admin UI for Depad, a peripherals store moving off Shopify. Landi
 - The browser calls `/api/*` and `/media/*` on this app; `next.config.ts` rewrites them to `BACKEND_URL` (default `http://localhost:5181`). Same origin, so the backend's `depad_auth` cookie just works.
 - Typed client: `src/lib/api/client.ts` (`api.GET/POST…` from openapi-fetch, `call()` throws `ApiError` with `fieldErrors`). Types in `src/lib/api/schema.d.ts` are **generated** — never edit; run `npm run api:types` with the backend running.
 - A 401 outside the login sends the browser to `/admin/login?expired=1&returnTo=…`.
-- **Every failed save must say why, visibly.** Every admin form uses `useServerErrors(form.setError, labels)` + `<ServerErrors />` (`src/components/admin/server-errors.tsx`): it marks the named fields *and* lists every backend message above the Save button, so no message is ever lost because the screen has no matching field. Failed deletes and other one-click actions use `useNotify().failed` (toast). Never swallow an error silently. E2E tests for refusals assert the message text.
+- **Every failed save must say why, visibly.** Every admin form uses `useServerErrors(form.setError, labels)` + `<ServerErrors />` (`src/components/admin/server-errors.tsx`): it marks the named fields *and* lists every backend message above the Save button, so no message is ever lost because the screen has no matching field. Submit with `submitWith(form, handler)`, never `form.handleSubmit` directly: React Hook Form silently refuses to submit while an old server error sits on a field without an input. Failed deletes and other one-click actions use `useNotify().failed` (toast). Never swallow an error silently. E2E tests for refusals assert the message text.
 
 ## Admin
 

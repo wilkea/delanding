@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { ConfirmButton } from "@/components/admin/confirm-button";
 import { PageHeader } from "@/components/admin/page-header";
-import { ServerErrors, useServerErrors } from "@/components/admin/server-errors";
+import { ServerErrors, submitWith, useServerErrors } from "@/components/admin/server-errors";
 import { useNotify } from "@/components/admin/use-notify";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -72,7 +72,7 @@ function BrandForm({ brand, onClose }: { brand: Brand | null; onClose: () => voi
       <DialogHeader>
         <DialogTitle>{brand ? t("edit") : t("new")}</DialogTitle>
       </DialogHeader>
-      <form id="brand-form" onSubmit={form.handleSubmit(onSubmit)} noValidate>
+      <form id="brand-form" onSubmit={submitWith(form, onSubmit)} noValidate>
         <FieldGroup>
           <Field data-invalid={!!errors.name}>
             <FieldLabel htmlFor="brand-name">{t("name")}</FieldLabel>

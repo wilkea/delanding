@@ -2,8 +2,8 @@
 
 import { CircleAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
-import type { FieldValues, UseFormSetError } from "react-hook-form";
+import { useEffect, useRef, useState, type BaseSyntheticEvent } from "react";
+import type { FieldValues, SubmitHandler, UseFormReturn, UseFormSetError } from "react-hook-form";
 import { ApiError } from "@/lib/api/client";
 import { mapFieldErrors, toFormPath } from "@/lib/api/forms";
 
@@ -15,7 +15,16 @@ function labelFor(key: string, labels: FieldLabels): string {
   return [label, ...rest.map((part) => (/^\d+$/.test(part) ? `#${Number(part) + 1}` : part))].join(" ");
 }
 
-export function useServerErrors<T extends FieldValues>(setError: UseFormSetError<T>, labels: FieldLabels) {
+type SubmittableForm<T extends FieldValues> = Pick<UseFormReturn<T>, "clearErrors" | "handleSubmit">;
+
+export function submitWith<T extends FieldValues>(form: SubmittableForm<T>, onValid: SubmitHandler<T>) {
+  return (event?: BaseSyntheticEvent) => {
+    form.clearErrors();
+    return form.handleSubmit(onValid)(event);
+  };
+}
+
+export function useServerErrors<T extends FieldValues>(setError: UseFormSetError<T> | null, labels: FieldLabels) {
   const t = useTranslations("admin");
   const [messages, setMessages] = useState<string[]>([]);
 
@@ -35,7 +44,9 @@ export function useServerErrors<T extends FieldValues>(setError: UseFormSetError
       return;
     }
 
-    mapFieldErrors(error, setError, Object.keys(labels));
+    if (setError) {
+      mapFieldErrors(error, setError, Object.keys(labels));
+    }
     const fieldMessages = Object.entries(error.fieldErrors).flatMap(([key, list]) => list.map((m) => `${labelFor(key, labels)}: ${m}`));
     setMessages(fieldMessages.length > 0 ? fieldMessages : [error.message || t("errors.unexpected")]);
   }
@@ -45,12 +56,20 @@ export function useServerErrors<T extends FieldValues>(setError: UseFormSetError
 
 export function ServerErrors({ messages }: { messages: string[] }) {
   const t = useTranslations("admin");
+  const box = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      box.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+  }, [messages]);
+
   if (messages.length === 0) {
     return null;
   }
 
   return (
-    <div role="alert" className="flex gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+    <div ref={box} role="alert" className="flex gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
       <CircleAlert className="mt-0.5 size-4 shrink-0" />
       <div>
         <p className="font-medium">{t("notSaved", { count: messages.length })}</p>

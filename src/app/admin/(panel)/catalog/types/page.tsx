@@ -8,7 +8,7 @@ import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { ConfirmButton } from "@/components/admin/confirm-button";
 import { LocalizedInput } from "@/components/admin/localized-input";
 import { PageHeader } from "@/components/admin/page-header";
-import { ServerErrors, useServerErrors } from "@/components/admin/server-errors";
+import { ServerErrors, submitWith, useServerErrors } from "@/components/admin/server-errors";
 import { SimpleSelect } from "@/components/admin/simple-select";
 import { useNotify } from "@/components/admin/use-notify";
 import { Badge } from "@/components/ui/badge";
@@ -96,7 +96,7 @@ function TypeForm({ type, onClose }: { type: ProductType | null; onClose: () => 
       <DialogHeader>
         <DialogTitle>{isNew ? t("new") : t("edit")}</DialogTitle>
       </DialogHeader>
-      <form id="type-form" onSubmit={form.handleSubmit(onSubmit)} noValidate>
+      <form id="type-form" onSubmit={submitWith(form, onSubmit)} noValidate>
         <FieldGroup>
           <Field data-invalid={!!errors.name}>
             <FieldLabel htmlFor="type-name">{t("name")}</FieldLabel>

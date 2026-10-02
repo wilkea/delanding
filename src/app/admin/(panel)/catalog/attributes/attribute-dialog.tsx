@@ -1,13 +1,14 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Plus, Trash2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { LocalizedInput } from "@/components/admin/localized-input";
-import { ServerErrors, useServerErrors } from "@/components/admin/server-errors";
+import { ServerErrors, submitWith, useServerErrors } from "@/components/admin/server-errors";
 import { SimpleSelect } from "@/components/admin/simple-select";
+import { Swatch } from "@/components/admin/swatch";
 import { useNotify } from "@/components/admin/use-notify";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -30,8 +31,11 @@ type Values = {
   dataType: DataType;
   unit: string;
   isFilterable: boolean;
-  options: { code: string; label: Localized }[];
+  showAsSwatches: boolean;
+  options: { code: string; label: Localized; swatch: string[] }[];
 };
+
+const defaultColor = "#984AFE";
 
 type Props = {
   open: boolean;
@@ -48,9 +52,52 @@ function defaults(attribute?: Attribute | null): Values {
         dataType: attribute.dataType,
         unit: attribute.unit ?? "",
         isFilterable: attribute.isFilterable,
-        options: attribute.options.map((o) => ({ code: o.code, label: o.label })),
+        showAsSwatches: attribute.showAsSwatches,
+        options: attribute.options.map((o) => ({ code: o.code, label: o.label, swatch: o.swatch ?? [] })),
       }
-    : { code: "", name: {}, dataType: "Option", unit: "", isFilterable: true, options: [] };
+    : { code: "", name: {}, dataType: "Option", unit: "", isFilterable: true, showAsSwatches: false, options: [] };
+}
+
+function SwatchEditor({ index, value, onChange }: { index: number; value: string[]; onChange: (value: string[]) => void }) {
+  const t = useTranslations("admin.attributes");
+
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-2">
+      <Swatch colors={value} className="size-6" />
+      {value.map((color, i) => (
+        <span key={i} className="flex items-center gap-1 rounded-md border px-1.5 py-1">
+          <input
+            type="color"
+            aria-label={`${t("color")} ${i + 1} option-${index}`}
+            className="size-6 cursor-pointer rounded border-0 bg-transparent p-0"
+            value={color.toLowerCase()}
+            onChange={(e) => onChange(value.map((c, j) => (j === i ? e.target.value.toUpperCase() : c)))}
+          />
+          <span className="font-mono text-xs text-muted-foreground">{color.toUpperCase()}</span>
+          <button
+            type="button"
+            aria-label={`${t("removeColor")} ${i + 1} option-${index}`}
+            className="rounded p-0.5 text-muted-foreground hover:text-foreground"
+            onClick={() => onChange(value.filter((_, j) => j !== i))}
+          >
+            <X className="size-3" />
+          </button>
+        </span>
+      ))}
+      {value.length < 2 && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          aria-label={`${t("addColorFor")} option-${index}`}
+          onClick={() => onChange([...value, value[0] ?? defaultColor])}
+        >
+          <Plus className="size-3" />
+          {t("addColor")}
+        </Button>
+      )}
+    </div>
+  );
 }
 
 export function AttributeDialog({ open, onOpenChange, attribute, onSaved }: Props) {
@@ -77,9 +124,11 @@ function AttributeForm({ attribute, onSaved, onClose }: { attribute?: Attribute 
     dataType: t("type"),
     unit: t("unit"),
     options: t("options"),
+    showAsSwatches: t("swatches"),
   });
   const options = useFieldArray({ control: form.control, name: "options" });
   const dataType = useWatch({ control: form.control, name: "dataType" });
+  const showAsSwatches = useWatch({ control: form.control, name: "showAsSwatches" }) && withOptions(dataType);
   const nameRo = useWatch({ control: form.control, name: "name.ro" });
 
   useEffect(() => {
@@ -94,11 +143,13 @@ function AttributeForm({ attribute, onSaved, onClose }: { attribute?: Attribute 
       name: cleanLocalized(values.name),
       unit: values.unit.trim() || null,
       isFilterable: values.isFilterable,
+      showAsSwatches: withOptions(values.dataType) && values.showAsSwatches,
       options: withOptions(values.dataType)
         ? values.options.map((o, index) => ({
             code: o.code.trim() || toCode(o.label.ro ?? ""),
             label: cleanLocalized(o.label),
             sortOrder: index,
+            swatch: values.showAsSwatches ? o.swatch : null,
           }))
         : null,
     };
@@ -125,7 +176,7 @@ function AttributeForm({ attribute, onSaved, onClose }: { attribute?: Attribute 
         <DialogTitle>{isNew ? t("new") : t("edit")}</DialogTitle>
         <DialogDescription>{t("dialogHint")}</DialogDescription>
       </DialogHeader>
-      <form id="attribute-form" onSubmit={form.handleSubmit(onSubmit)} noValidate>
+      <form id="attribute-form" onSubmit={submitWith(form, onSubmit)} noValidate>
         <FieldGroup>
           <Field data-invalid={!!errors.name}>
             <FieldLabel htmlFor="attribute-name">{t("name")}</FieldLabel>
@@ -191,6 +242,32 @@ function AttributeForm({ attribute, onSaved, onClose }: { attribute?: Attribute 
           </div>
 
           {withOptions(dataType) && (
+            <Field orientation="horizontal">
+              <Controller
+                control={form.control}
+                name="showAsSwatches"
+                render={({ field }) => (
+                  <Switch
+                    id="attribute-swatches"
+                    checked={field.value}
+                    onCheckedChange={(checked) => {
+                      field.onChange(checked);
+                      if (checked) {
+                        form.getValues("options").forEach((o, i) => {
+                          if (o.swatch.length === 0) {
+                            form.setValue(`options.${i}.swatch`, [defaultColor]);
+                          }
+                        });
+                      }
+                    }}
+                  />
+                )}
+              />
+              <FieldLabel htmlFor="attribute-swatches">{t("swatches")}</FieldLabel>
+            </Field>
+          )}
+
+          {withOptions(dataType) && (
             <Field>
               <FieldLabel>{t("options")}</FieldLabel>
               <ul className="flex flex-col gap-2">
@@ -245,11 +322,24 @@ function AttributeForm({ attribute, onSaved, onClose }: { attribute?: Attribute 
                         </Button>
                       </div>
                     </div>
-                    <FieldError errors={[errors.options?.[index]?.code, errors.options?.[index]?.label]} />
+                    {showAsSwatches && (
+                      <Controller
+                        control={form.control}
+                        name={`options.${index}.swatch`}
+                        render={({ field }) => <SwatchEditor index={index} value={field.value} onChange={field.onChange} />}
+                      />
+                    )}
+                    <FieldError errors={[errors.options?.[index]?.code, errors.options?.[index]?.label, errors.options?.[index]?.swatch]} />
                   </li>
                 ))}
               </ul>
-              <Button type="button" variant="outline" size="sm" className="w-fit" onClick={() => options.append({ code: "", label: {} })}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="w-fit"
+                onClick={() => options.append({ code: "", label: {}, swatch: showAsSwatches ? [defaultColor] : [] })}
+              >
                 <Plus className="size-4" />
                 {t("addOption")}
               </Button>

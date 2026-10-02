@@ -1,7 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { FolderTree, LayoutDashboard, LogOut, Menu, Shapes, SlidersHorizontal, Tag, type LucideIcon } from "lucide-react";
+import { FolderTree, Images, LayoutDashboard, LogOut, Menu, Package, Shapes, SlidersHorizontal, Tag, type LucideIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -15,7 +15,7 @@ import { api } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "./use-current-user";
 
-type NavLabel = "dashboard" | "attributes" | "types" | "categories" | "brands";
+type NavLabel = "dashboard" | "products" | "media" | "attributes" | "types" | "categories" | "brands";
 type NavItem = { href: string; label: NavLabel; icon: LucideIcon };
 type NavGroup = { title?: "catalog"; items: NavItem[] };
 
@@ -24,6 +24,8 @@ const navigation: NavGroup[] = [
   {
     title: "catalog",
     items: [
+      { href: "/admin/catalog/products", label: "products", icon: Package },
+      { href: "/admin/media", label: "media", icon: Images },
       { href: "/admin/catalog/attributes", label: "attributes", icon: SlidersHorizontal },
       { href: "/admin/catalog/types", label: "types", icon: Shapes },
       { href: "/admin/catalog/categories", label: "categories", icon: FolderTree },
@@ -52,7 +54,7 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <div className="flex h-full flex-col gap-4 p-4">
       <Link href="/admin" onClick={onNavigate} className="px-2 pt-1">
-        <Image src="/brand/wordmark-black.png" alt="Depad" width={110} height={49} className="h-auto w-24" />
+        <Image src="/brand/wordmark-black.png" alt="Depad" width={110} height={49} loading="eager" className="h-auto w-24" />
       </Link>
       <nav className="flex flex-1 flex-col gap-4 overflow-y-auto" aria-label="Admin">
         {navigation.map((group, index) => (

@@ -8,7 +8,7 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 import { ConfirmButton } from "@/components/admin/confirm-button";
 import { LocalizedInput } from "@/components/admin/localized-input";
 import { PageHeader } from "@/components/admin/page-header";
-import { ServerErrors, useServerErrors } from "@/components/admin/server-errors";
+import { ServerErrors, submitWith, useServerErrors } from "@/components/admin/server-errors";
 import { SimpleSelect } from "@/components/admin/simple-select";
 import { useNotify } from "@/components/admin/use-notify";
 import { Badge } from "@/components/ui/badge";
@@ -19,34 +19,14 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { api, call } from "@/lib/api/client";
-import { cleanLocalized, textOf, type Localized, type Schemas } from "@/lib/api/types";
+import { cleanLocalized, textOf, type Localized } from "@/lib/api/types";
 import { toSlug } from "@/lib/text";
+import { categoryTree, flattenTree, type Category, type CategoryNode } from "../category-tree";
 
-type Category = Schemas["CategoryResponse"];
-type Node = Category & { children: Node[]; depth: number };
+type Node = CategoryNode;
 type Values = { parentId: string; slug: string; name: Localized; sortOrder: number; isActive: boolean };
 
 const ROOT = "root";
-
-function buildTree(categories: Category[]): Node[] {
-  const byParent = new Map<string | null, Category[]>();
-  for (const category of categories) {
-    const list = byParent.get(category.parentId) ?? [];
-    list.push(category);
-    byParent.set(category.parentId, list);
-  }
-
-  const build = (parentId: string | null, depth: number): Node[] =>
-    (byParent.get(parentId) ?? [])
-      .sort((a, b) => Number(a.sortOrder) - Number(b.sortOrder))
-      .map((c) => ({ ...c, depth, children: build(c.id, depth + 1) }));
-
-  return build(null, 0);
-}
-
-function flatten(nodes: Node[]): Node[] {
-  return nodes.flatMap((n) => [n, ...flatten(n.children)]);
-}
 
 type FormProps = { category: Category | null; parentId: string | null; all: Node[]; onClose: () => void };
 
@@ -119,7 +99,7 @@ function CategoryForm({ category, parentId, all, onClose }: FormProps) {
       <DialogHeader>
         <DialogTitle>{category ? t("edit") : t("new")}</DialogTitle>
       </DialogHeader>
-      <form id="category-form" onSubmit={form.handleSubmit(onSubmit)} noValidate>
+      <form id="category-form" onSubmit={submitWith(form, onSubmit)} noValidate>
         <FieldGroup>
           <Field data-invalid={!!errors.name}>
             <FieldLabel htmlFor="category-name">{t("name")}</FieldLabel>
@@ -179,7 +159,7 @@ export default function CategoriesPage() {
     parentId: null,
   });
   const categories = useQuery({ queryKey: ["categories"], queryFn: () => call(api.GET("/api/admin/categories")) });
-  const nodes = flatten(buildTree(categories.data ?? []));
+  const nodes = flattenTree(categoryTree(categories.data ?? []));
 
   async function remove(category: Category) {
     try {

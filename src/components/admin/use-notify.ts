@@ -14,7 +14,8 @@ export function useNotify() {
       if (error instanceof ApiError && error.status === 0) {
         toast.error(t("errors.unreachable"));
       } else if (error instanceof ApiError && error.status !== 401) {
-        toast.error(error.message || t("errors.unexpected"));
+        const details = Object.entries(error.fieldErrors).flatMap(([field, messages]) => messages.map((m) => `${field}: ${m}`));
+        toast.error(error.message || t("errors.unexpected"), details.length > 0 ? { description: details.join(" ") } : undefined);
       } else if (!(error instanceof ApiError)) {
         toast.error(t("errors.unexpected"));
       }

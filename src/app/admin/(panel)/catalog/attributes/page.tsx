@@ -1,20 +1,24 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { Pencil, Plus, Search, Sparkles, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useDeferredValue, useState } from "react";
+import { toast } from "sonner";
 import { ConfirmButton } from "@/components/admin/confirm-button";
 import { PageHeader } from "@/components/admin/page-header";
+import { Swatch } from "@/components/admin/swatch";
 import { useNotify } from "@/components/admin/use-notify";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { api, call } from "@/lib/api/client";
 import { textOf, type Schemas } from "@/lib/api/types";
 import { AttributeDialog } from "./attribute-dialog";
+import { presets, type Preset } from "./presets";
 
 type Attribute = Schemas["AttributeResponse"];
 
@@ -32,10 +36,22 @@ export default function AttributesPage() {
     queryKey: ["attributes", deferredSearch],
     queryFn: () => call(api.GET("/api/admin/attributes", { params: { query: { search: deferredSearch || undefined } } })),
   });
+  const library = useQuery({ queryKey: ["attributes", ""], queryFn: () => call(api.GET("/api/admin/attributes", {})) });
+  const existingCodes = new Set((library.data ?? []).map((a) => a.code));
 
   function open(attribute: Attribute | null) {
     setEditing(attribute);
     setDialogOpen(true);
+  }
+
+  async function addPreset(preset: Preset) {
+    try {
+      await call(api.POST("/api/admin/attributes", { body: preset.request }));
+      await queryClient.invalidateQueries({ queryKey: ["attributes"] });
+      toast.success(t("presetDone", { name: preset.request.name.ro }));
+    } catch (error) {
+      notify.failed(error);
+    }
   }
 
   async function remove(attribute: Attribute) {
@@ -54,10 +70,29 @@ export default function AttributesPage() {
         title={t("title")}
         description={t("description")}
         actions={
-          <Button onClick={() => open(null)}>
-            <Plus className="size-4" />
-            {t("new")}
-          </Button>
+          <>
+            <DropdownMenu>
+              <DropdownMenuTrigger render={<Button variant="outline" />}>
+                <Sparkles className="size-4" />
+                {t("presets")}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-72">
+                {presets.map((preset) => {
+                  const added = existingCodes.has(preset.request.code);
+                  return (
+                    <DropdownMenuItem key={preset.key} disabled={added} onClick={() => addPreset(preset)}>
+                      <span className="flex-1">{t(`presetNames.${preset.key}`)}</span>
+                      {added && <Badge variant="secondary">{t("presetAdded")}</Badge>}
+                    </DropdownMenuItem>
+                  );
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button onClick={() => open(null)}>
+              <Plus className="size-4" />
+              {t("new")}
+            </Button>
+          </>
         }
       />
       <div className="relative mb-4 max-w-sm">
@@ -106,7 +141,17 @@ export default function AttributesPage() {
                   </div>
                 </TableCell>
                 <TableCell className="hidden text-sm text-muted-foreground sm:table-cell">
-                  {attribute.options.map((o) => textOf(o.label)).join(", ") || "—"}
+                  {attribute.showAsSwatches ? (
+                    <div className="flex flex-wrap gap-1">
+                      {attribute.options.map((o) => (
+                        <span key={o.code} title={textOf(o.label)}>
+                          <Swatch colors={o.swatch} />
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    attribute.options.map((o) => textOf(o.label)).join(", ") || "—"
+                  )}
                 </TableCell>
                 <TableCell>
                   <div className="flex justify-end">
