@@ -1,7 +1,21 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { FolderTree, Images, LayoutDashboard, LogOut, Menu, Package, Shapes, SlidersHorizontal, Tag, type LucideIcon } from "lucide-react";
+import {
+  Boxes,
+  FileText,
+  FolderTree,
+  Images,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  Package,
+  Shapes,
+  SlidersHorizontal,
+  Tag,
+  Warehouse,
+  type LucideIcon,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -15,9 +29,9 @@ import { api } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "./use-current-user";
 
-type NavLabel = "dashboard" | "products" | "media" | "attributes" | "types" | "categories" | "brands";
+type NavLabel = "dashboard" | "products" | "media" | "attributes" | "types" | "categories" | "brands" | "stock" | "documents" | "locations";
 type NavItem = { href: string; label: NavLabel; icon: LucideIcon };
-type NavGroup = { title?: "catalog"; items: NavItem[] };
+type NavGroup = { title?: "catalog" | "inventory"; items: NavItem[] };
 
 const navigation: NavGroup[] = [
   { items: [{ href: "/admin", label: "dashboard", icon: LayoutDashboard }] },
@@ -32,10 +46,24 @@ const navigation: NavGroup[] = [
       { href: "/admin/catalog/brands", label: "brands", icon: Tag },
     ],
   },
+  {
+    title: "inventory",
+    items: [
+      { href: "/admin/inventory", label: "stock", icon: Boxes },
+      { href: "/admin/inventory/documents", label: "documents", icon: FileText },
+      { href: "/admin/inventory/locations", label: "locations", icon: Warehouse },
+    ],
+  },
 ];
 
-function isActive(pathname: string, href: string) {
+const allHrefs = navigation.flatMap((group) => group.items.map((item) => item.href));
+
+function matches(pathname: string, href: string) {
   return href === "/admin" ? pathname === "/admin" : pathname === href || pathname.startsWith(`${href}/`);
+}
+
+function isActive(pathname: string, href: string) {
+  return matches(pathname, href) && !allHrefs.some((other) => other.length > href.length && matches(pathname, other));
 }
 
 function Sidebar({ onNavigate }: { onNavigate?: () => void }) {

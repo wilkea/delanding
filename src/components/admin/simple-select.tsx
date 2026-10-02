@@ -31,7 +31,7 @@ export function SimpleSelect({ id, value, options, onChange, placeholder, invali
       <SelectTrigger id={id} aria-invalid={invalid} aria-label={rest["aria-label"]} className={className ?? "w-full"}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent alignItemWithTrigger={options.length <= 12}>
         {options.map((option) => (
           <SelectItem key={option.value} value={option.value}>
             {option.label}

@@ -13,7 +13,7 @@ import { ServerErrors, submitWith, useServerErrors } from "@/components/admin/se
 import { SimpleSelect } from "@/components/admin/simple-select";
 import { useNotify } from "@/components/admin/use-notify";
 import { useUnsavedChanges } from "@/components/admin/use-unsaved-changes";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -239,9 +239,9 @@ function ProductForm({ product, type, library: loadedLibrary, categories, brands
   return (
     <form className="mx-auto flex max-w-5xl flex-col gap-5 pb-16" onSubmit={submitWith(form, save)} noValidate>
       <div className="sticky top-0 z-10 -mx-4 flex flex-wrap items-center gap-3 border-b bg-background/95 px-4 py-3 backdrop-blur md:-mx-8 md:px-8">
-        <Button variant="ghost" size="icon" aria-label={t("backToList")} nativeButton={false} render={<Link href="/admin/catalog/products" />}>
+        <Link href="/admin/catalog/products" aria-label={t("backToList")} className={buttonVariants({ variant: "ghost", size: "icon" })}>
           <ArrowLeft className="size-4" />
-        </Button>
+        </Link>
         <div className="min-w-0 flex-1">
           <h1 className="truncate font-heading text-xl font-medium">{textOf(product?.name) || t("new")}</h1>
           <p className="text-xs text-muted-foreground">
