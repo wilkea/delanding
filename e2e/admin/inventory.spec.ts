@@ -44,9 +44,9 @@ async function receive(page: Page, locationId: string, lines: [string, number, n
 
 async function choose(page: Page, label: string, option: string) {
   await page.getByRole("combobox", { name: label }).click();
-  const item = page.getByRole("option", { name: option, exact: true });
-  await item.evaluate((el) => el.scrollIntoView({ block: "center" }));
-  await item.click();
+  await page.getByLabel("Search…").fill(option);
+  await page.getByRole("option", { name: option, exact: true }).click();
+  await expect(page.getByRole("combobox", { name: label })).toContainText(option);
 }
 
 async function addLine(page: Page, sku: string) {
@@ -90,6 +90,7 @@ test.describe("AI — admin inventory", () => {
 
     await page.goto("/admin/inventory");
     await page.getByRole("link", { name: "Receive" }).click();
+    await expect(page.getByRole("heading", { name: "Receive stock" })).toBeVisible();
     await choose(page, "Location", `House 1 ${id}`);
     await page.getByLabel("Supplier").fill("AliExpress");
     await addLine(page, s.sku("xl"));

@@ -49,6 +49,17 @@ When   the admin logs in
 Then   the dashboard greets them and links to the main sections (numbers like "orders waiting" come with the Orders slice)
 Auto:  ✅ e2e: AD-10 / AD-12 sidebar and dashboard
 
+### AD-13 · Long text never hides the buttons
+Given  an attribute named "Suprafață extrem de lungă …" (100+ characters) with long option names
+When   the admin opens a list
+Then   the text wraps inside its column; Edit and Delete stay visible without scrolling sideways
+Auto:  ✅ e2e: AD-13 long text (buttons on screen, no sideways scroll)
+
+### AD-14 · Every dropdown can be searched
+When   the admin opens any dropdown (product type, category, location, …)
+Then   a search box at the top filters the list as they type; picking works with mouse or keyboard
+Auto:  ✅ e2e: AD-14 dropdowns (search, keyboard, nothing found)
+
 ## Errors
 
 ### AD-20 · Validation errors appear next to the field

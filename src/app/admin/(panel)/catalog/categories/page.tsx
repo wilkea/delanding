@@ -184,7 +184,7 @@ export default function CategoriesPage() {
         {categories.data?.length === 0 && <li className="p-8 text-center text-sm text-muted-foreground">{tc("empty")}</li>}
         {nodes.map((node) => (
           <li key={node.id} className="flex items-center gap-2 p-2 pr-3" style={{ paddingLeft: `${0.75 + node.depth * 1.5}rem` }}>
-            <div className="min-w-0 flex-1">
+            <div className="min-w-0 flex-1 [overflow-wrap:anywhere]">
               <span className="font-medium">{textOf(node.name)}</span>
               <span className="ml-2 font-mono text-xs text-muted-foreground">/{node.slug}</span>
               {!node.isActive && <Badge variant="outline" className="ml-2">{t("inactive")}</Badge>}

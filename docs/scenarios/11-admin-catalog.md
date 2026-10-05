@@ -92,7 +92,7 @@ Auto:  ✅ e2e: AC-15 every problem at once (and the next save goes through afte
 Given  a saved draft
 When   the admin clicks **Publish**
 Then   it becomes Active — or, if something is missing (required attribute, price, weight, **photo**), the list of what is missing is shown and it stays a draft
-And    **Unpublish** sets it back to Draft; **Archive** hides it for good; **Delete** is offered only for drafts
+And    **Unpublish** sets it back to Draft; **Archive** hides it from customers (orders and stock history stay) and **Restore as draft** brings it back; **Delete** is offered only for drafts
 Auto:  ✅ e2e: AC-11 AC-12 AC-14 AC-16 (refused with the missing list, then publish, unpublish, archive, restore, delete)
 
 ### AC-17 · Leaving with unsaved changes

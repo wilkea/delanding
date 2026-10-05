@@ -41,7 +41,9 @@
       "remove": "Remove",
       "moveUp": "Move up",
       "moveDown": "Move down",
-      "empty": "Nothing here yet."
+      "empty": "Nothing here yet.",
+      "search": "Search…",
+      "noResults": "Nothing found."
     },
     "attributes": {
       "title": "Attributes",
