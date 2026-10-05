@@ -2,6 +2,7 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import {
+  BadgePercent,
   Boxes,
   FileText,
   FolderTree,
@@ -11,6 +12,7 @@ import {
   Menu,
   Package,
   RotateCcw,
+  Settings,
   Shapes,
   ShoppingBag,
   SlidersHorizontal,
@@ -35,6 +37,8 @@ type NavLabel =
   | "dashboard"
   | "orders"
   | "returns"
+  | "discounts"
+  | "settings"
   | "products"
   | "media"
   | "attributes"
@@ -45,7 +49,7 @@ type NavLabel =
   | "documents"
   | "locations";
 type NavItem = { href: string; label: NavLabel; icon: LucideIcon };
-type NavGroup = { title?: "sales" | "catalog" | "inventory"; items: NavItem[] };
+type NavGroup = { title?: "sales" | "catalog" | "inventory" | "shop"; items: NavItem[] };
 
 const navigation: NavGroup[] = [
   { items: [{ href: "/admin", label: "dashboard", icon: LayoutDashboard }] },
@@ -54,6 +58,7 @@ const navigation: NavGroup[] = [
     items: [
       { href: "/admin/orders", label: "orders", icon: ShoppingBag },
       { href: "/admin/returns", label: "returns", icon: RotateCcw },
+      { href: "/admin/discounts", label: "discounts", icon: BadgePercent },
     ],
   },
   {
@@ -75,6 +80,7 @@ const navigation: NavGroup[] = [
       { href: "/admin/inventory/locations", label: "locations", icon: Warehouse },
     ],
   },
+  { title: "shop", items: [{ href: "/admin/settings", label: "settings", icon: Settings }] },
 ];
 
 const allHrefs = navigation.flatMap((group) => group.items.map((item) => item.href));
