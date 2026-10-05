@@ -12,9 +12,8 @@ import { textOf } from "@/lib/api/types";
 import { formatDate, formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { OrderStatusBadge, type OrderStatus } from "./orders/orders-shared";
+import { useShopSettings } from "@/components/admin/use-shop-settings";
 import { useCurrentUser } from "./use-current-user";
-
-const lowStockAt = 2;
 
 function Tile({ href, label, value, tone, testId }: { href: string; label: string; value: number | undefined; tone?: "warn"; testId: string }) {
   return (
@@ -63,9 +62,12 @@ export default function DashboardPage() {
     queryKey: ["returns", { status: "Received", count: true }],
     queryFn: () => call(api.GET("/api/admin/returns", { params: { query: { status: "Received", page: 1, pageSize: 1 } } })),
   });
+  const shop = useShopSettings();
+  const lowStockAt = shop.data ? Number(shop.data.lowStockAt) : undefined;
   const lowStock = useQuery({
     queryKey: ["stock", { lowStockAt, pageSize: 10 }],
     queryFn: () => call(api.GET("/api/admin/inventory/stock", { params: { query: { lowStockAt, page: 1, pageSize: 10 } } })),
+    enabled: lowStockAt !== undefined,
   });
 
   const count = (status: OrderStatus) => (counts.data ? Number(counts.data.byStatus.find((c) => c.status === status)?.count ?? 0) : undefined);
@@ -111,10 +113,10 @@ export default function DashboardPage() {
           </ul>
         </Panel>
 
-        <Panel title={t("lowStock", { count: lowStockAt })} href="/admin/inventory?low=1" linkLabel={t("allLowStock")}>
+        <Panel title={t("lowStock", { count: lowStockAt ?? "…" })} href="/admin/inventory?low=1" linkLabel={t("allLowStock")}>
           {lowStock.isPending && <Skeleton className="h-24 w-full" />}
           {lowStock.data?.items.length === 0 && <p className="text-sm text-muted-foreground">{t("noLowStock")}</p>}
-          <ul className="flex flex-col divide-y" aria-label={t("lowStock", { count: lowStockAt })}>
+          <ul className="flex flex-col divide-y" aria-label={t("lowStock", { count: lowStockAt ?? "…" })}>
             {lowStock.data?.items.map((row) => (
               <li key={row.variantId} className="flex items-center justify-between gap-3 py-2 text-sm">
                 <span className="min-w-0 flex-1">

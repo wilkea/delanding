@@ -8,6 +8,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useDeferredValue, useState } from "react";
 import { PageHeader } from "@/components/admin/page-header";
 import { SimpleSelect } from "@/components/admin/simple-select";
+import { useShopSettings } from "@/components/admin/use-shop-settings";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -20,7 +21,6 @@ import { formatDate, formatMoney, Quantity, useLocations, type StockRow } from "
 
 const ALL = "all";
 const pageSize = 50;
-const lowStockAt = 2;
 
 function VariantHistory({ row, onClose }: { row: StockRow | null; onClose: () => void }) {
   const t = useTranslations("admin.inventory");
@@ -84,6 +84,8 @@ function StockList() {
   const [selected, setSelected] = useState<StockRow | null>(null);
   const locations = useLocations();
   const active = (locations.data ?? []).filter((l) => l.isActive);
+  const shop = useShopSettings();
+  const lowStockAt = shop.data ? Number(shop.data.lowStockAt) : undefined;
 
   const filters = {
     search: deferred || undefined,
@@ -96,6 +98,7 @@ function StockList() {
   const stock = useQuery({
     queryKey: ["stock", filters],
     queryFn: () => call(api.GET("/api/admin/inventory/stock", { params: { query: filters } })),
+    enabled: !lowOnly || lowStockAt !== undefined,
     placeholderData: keepPreviousData,
   });
   const total = Number(stock.data?.totalCount ?? 0);
@@ -148,7 +151,7 @@ function StockList() {
         </label>
         <label className="flex items-center gap-2 text-sm">
           <Checkbox checked={lowOnly} onCheckedChange={(c) => { setLowOnly(!!c); setPage(1); }} />
-          {t("stock.lowOnly", { count: lowStockAt })}
+          {t("stock.lowOnly", { count: lowStockAt ?? "…" })}
         </label>
       </div>
       <div className="overflow-x-auto rounded-lg border bg-background">

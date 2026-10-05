@@ -115,6 +115,34 @@ test.describe("AP / AS — admin discounts and settings", () => {
     await expect(page.getByText("This discount was already used in orders. Deactivate it instead.")).toBeVisible();
   });
 
+  test("AS-02 low stock and default VAT are set in one place and used everywhere", async ({ page }) => {
+    try {
+      await page.goto("/admin/settings");
+      await page.getByLabel("Low stock at").fill("-1");
+      await page.getByLabel("Default VAT").fill("120");
+      await page.getByRole("button", { name: "Save" }).first().click();
+      const problems = page.getByRole("alert").filter({ hasText: "Not saved" });
+      await expect(problems).toContainText("Low stock at: Must be between 0 and 1000.");
+      await expect(problems).toContainText("Default VAT: Must be between 0 and 100.");
+
+      await page.getByLabel("Low stock at").fill("3");
+      await page.getByLabel("Default VAT").fill("19");
+      await page.getByRole("button", { name: "Save" }).first().click();
+      await expect(problems).toBeHidden();
+
+      await page.goto("/admin");
+      await expect(page.getByText("Low stock (3 or fewer)", { exact: true })).toBeVisible();
+      await page.goto("/admin/inventory");
+      await expect(page.getByRole("checkbox", { name: "Low stock (3 or fewer available)" })).toBeVisible();
+
+      const shop = await createShop(page, 0);
+      await page.goto(`/admin/catalog/products/${shop.product.id}`);
+      await expect(page.getByLabel("VAT %")).toHaveAttribute("placeholder", "19 (shop default)");
+    } finally {
+      await page.request.put("/api/admin/settings/shop", { data: { lowStockAt: 5, vatRate: 20 } });
+    }
+  });
+
   test("AS-01 delivery fee and free-from are saved, a negative fee is explained", async ({ page }) => {
     try {
       await page.getByRole("link", { name: "Settings" }).click();

@@ -46,7 +46,7 @@ Auto:  ✅ e2e: AD-11 on a phone
 
 ### AD-12 · Dashboard
 When   the admin logs in
-Then   the dashboard greets them and shows what needs attention: orders New / Confirmed / Packed (each opens the orders list), refunds needed, returns to receive and to refund, low stock (2 or fewer available, published products only) and the latest orders
+Then   the dashboard greets them and shows what needs attention: orders New / Confirmed / Packed (each opens the orders list), refunds needed, returns to receive and to refund, low stock (the number from Settings, default 5; published products only) and the latest orders
 Auto:  ✅ e2e: AD-10 / AD-12 sidebar and dashboard · ✅ AD-12 dashboard shows what needs attention (new orders +1, latest orders, low stock → Stock page filtered)
 
 ### AD-13 · Long text never hides the buttons

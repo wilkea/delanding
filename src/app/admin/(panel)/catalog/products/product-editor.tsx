@@ -12,6 +12,7 @@ import { LocalizedInput } from "@/components/admin/localized-input";
 import { ServerErrors, submitWith, useServerErrors } from "@/components/admin/server-errors";
 import { SimpleSelect } from "@/components/admin/simple-select";
 import { useNotify } from "@/components/admin/use-notify";
+import { useShopSettings } from "@/components/admin/use-shop-settings";
 import { useUnsavedChanges } from "@/components/admin/use-unsaved-changes";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -108,6 +109,7 @@ function ProductForm({ product, type, library: loadedLibrary, categories, brands
   const notify = useNotify();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const shop = useShopSettings();
   const [created, setCreated] = useState<Attribute[]>([]);
   const [picking, setPicking] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -321,7 +323,7 @@ function ProductForm({ product, type, library: loadedLibrary, categories, brands
           </Field>
           <Field data-invalid={!!errors.vatRate}>
             <FieldLabel htmlFor="product-vat">{t("vat")}</FieldLabel>
-            <Input id="product-vat" inputMode="decimal" placeholder={t("vatDefault")} aria-invalid={!!errors.vatRate} {...form.register("vatRate")} />
+            <Input id="product-vat" inputMode="decimal" placeholder={shop.data ? t("vatDefault", { rate: Number(shop.data.vatRate) }) : ""} aria-invalid={!!errors.vatRate} {...form.register("vatRate")} />
             <FieldError errors={[errors.vatRate]} />
           </Field>
           <Field data-invalid={!!errors.categoryId}>

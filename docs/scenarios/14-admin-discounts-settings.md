@@ -39,3 +39,9 @@ When   the admin opens **Settings**
 Then   payment methods (Cash on delivery, Test card) can be switched on or off and ordered; delivery methods (Nova Post branch) have on/off, fee (50 MDL) and "free from" (400 MDL)
 And    a change applies to new orders only (O-62); a wrong value (negative fee) shows the reason
 Auto:  ✅ e2e: AS-01 (negative fee explained, 60 / 500 saved)
+
+### AS-02 · Shop-wide numbers in one place
+When   the admin opens **Settings → Shop**
+Then   they set **Low stock at** (default 5) and **Default VAT** (default 20 %); the dashboard, the Stock "Low stock" filter and the product VAT hint use them at once
+And    a wrong value (−1, 120 %) is refused, naming the field (backend S-01, S-02)
+Auto:  ✅ e2e: AS-02 (refused values named, 3 / 19 % used on dashboard, Stock and product)

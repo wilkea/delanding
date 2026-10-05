@@ -6,6 +6,7 @@ import { useState } from "react";
 import { PageHeader } from "@/components/admin/page-header";
 import { ServerErrors, useServerErrors } from "@/components/admin/server-errors";
 import { useNotify } from "@/components/admin/use-notify";
+import { useShopSettings } from "@/components/admin/use-shop-settings";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -124,6 +125,74 @@ function DeliveryRow({ method }: { method: Delivery }) {
   );
 }
 
+function ShopCard() {
+  const t = useTranslations("admin.settings");
+  const notify = useNotify();
+  const queryClient = useQueryClient();
+  const shop = useShopSettings();
+  const [values, setValues] = useState<{ lowStockAt: string; vatRate: string } | null>(null);
+  const server = useServerErrors(null, { lowStockAt: t("lowStockAt"), vatRate: t("vatRate") });
+
+  if (!shop.data) {
+    return <Skeleton className="h-32 w-full" />;
+  }
+
+  const saved = { lowStockAt: String(Number(shop.data.lowStockAt)), vatRate: String(Number(shop.data.vatRate)) };
+  const current = values ?? saved;
+  const changed = current.lowStockAt !== saved.lowStockAt || current.vatRate !== saved.vatRate;
+
+  async function save() {
+    server.clear();
+    try {
+      const result = await call(
+        api.PUT("/api/admin/settings/shop", {
+          body: { lowStockAt: Number(current.lowStockAt), vatRate: Number(current.vatRate.replace(",", ".")) },
+        }),
+      );
+      queryClient.setQueryData(["settings", "shop"], result);
+      await queryClient.invalidateQueries({ queryKey: ["stock"] });
+      setValues(null);
+      notify.saved();
+    } catch (error) {
+      server.show(error);
+    }
+  }
+
+  const field = (key: "lowStockAt" | "vatRate", label: string, hint: string, suffix: string) => (
+    <label className="flex flex-col gap-1 text-sm">
+      <span className="font-medium">{label}</span>
+      <span className="flex items-center gap-2">
+        <Input
+          aria-label={label}
+          inputMode="decimal"
+          className="w-24"
+          value={current[key]}
+          onChange={(e) => setValues({ ...current, [key]: e.target.value })}
+        />
+        <span className="text-muted-foreground">{suffix}</span>
+      </span>
+      <span className="text-xs text-muted-foreground">{hint}</span>
+    </label>
+  );
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{t("shop")}</CardTitle>
+        <CardDescription>{t("shopHint")}</CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
+        <div className="grid gap-4 sm:grid-cols-2">
+          {field("lowStockAt", t("lowStockAt"), t("lowStockAtHint"), t("pieces"))}
+          {field("vatRate", t("vatRate"), t("vatRateHint"), "%")}
+        </div>
+        <ServerErrors messages={server.messages} />
+        <Button className="self-end" disabled={!changed} onClick={save}>{t("save")}</Button>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function SettingsPage() {
   const t = useTranslations("admin.settings");
   const payments = useQuery({ queryKey: ["checkout", "payment"], queryFn: () => call(api.GET("/api/admin/checkout/payment-methods")) });
@@ -132,6 +201,7 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-6">
       <PageHeader title={t("title")} description={t("description")} />
+      <ShopCard />
       <Card>
         <CardHeader>
           <CardTitle>{t("payments")}</CardTitle>
