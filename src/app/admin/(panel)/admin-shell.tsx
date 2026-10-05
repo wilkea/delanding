@@ -10,7 +10,9 @@ import {
   LogOut,
   Menu,
   Package,
+  RotateCcw,
   Shapes,
+  ShoppingBag,
   SlidersHorizontal,
   Tag,
   Warehouse,
@@ -29,12 +31,31 @@ import { api } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "./use-current-user";
 
-type NavLabel = "dashboard" | "products" | "media" | "attributes" | "types" | "categories" | "brands" | "stock" | "documents" | "locations";
+type NavLabel =
+  | "dashboard"
+  | "orders"
+  | "returns"
+  | "products"
+  | "media"
+  | "attributes"
+  | "types"
+  | "categories"
+  | "brands"
+  | "stock"
+  | "documents"
+  | "locations";
 type NavItem = { href: string; label: NavLabel; icon: LucideIcon };
-type NavGroup = { title?: "catalog" | "inventory"; items: NavItem[] };
+type NavGroup = { title?: "sales" | "catalog" | "inventory"; items: NavItem[] };
 
 const navigation: NavGroup[] = [
   { items: [{ href: "/admin", label: "dashboard", icon: LayoutDashboard }] },
+  {
+    title: "sales",
+    items: [
+      { href: "/admin/orders", label: "orders", icon: ShoppingBag },
+      { href: "/admin/returns", label: "returns", icon: RotateCcw },
+    ],
+  },
   {
     title: "catalog",
     items: [

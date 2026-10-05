@@ -14,11 +14,7 @@ export type DocumentType = Schemas["StockDocumentType"];
 export type StockRow = Schemas["StockOverviewRow"];
 export type Location = Schemas["StockLocationResponse"];
 
-const dateFormat = new Intl.DateTimeFormat("ro-MD", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Chisinau" });
-const moneyFormat = new Intl.NumberFormat("ro-MD", { maximumFractionDigits: 2 });
-
-export const formatDate = (value: string) => dateFormat.format(new Date(value));
-export const formatMoney = (value: number | string) => `${moneyFormat.format(Number(value))} MDL`;
+export { formatDate, formatMoney } from "@/lib/format";
 
 export function useLocations() {
   return useQuery({ queryKey: ["locations"], queryFn: () => call(api.GET("/api/admin/inventory/locations")) });

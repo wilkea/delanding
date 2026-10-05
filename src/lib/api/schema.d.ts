@@ -2557,7 +2557,7 @@ export interface paths {
             parameters: {
                 query?: {
                     search?: string;
-                    status?: components["schemas"]["OrderStatus"];
+                    status?: components["schemas"]["OrderStatus"][];
                     page?: number | string;
                     pageSize?: number | string;
                 };
@@ -2574,6 +2574,59 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["PagedResultOfOrderSummaryResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/orders/counts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrderCountsResponse"];
                     };
                 };
                 /** @description Bad Request */
@@ -4340,6 +4393,11 @@ export interface components {
             /** Format: date-time */
             createdAt: string;
         };
+        OrderCountsResponse: {
+            byStatus: components["schemas"]["OrderStatusCount"][];
+            /** Format: int32 */
+            refundNeeded: number | string;
+        };
         OrderCustomerView: {
             name: string;
             phone: string;
@@ -4420,6 +4478,11 @@ export interface components {
         };
         /** @enum {unknown} */
         OrderStatus: "New" | "Confirmed" | "Packed" | "Shipped" | "Delivered" | "Cancelled" | "ReturnedToSender";
+        OrderStatusCount: {
+            status: components["schemas"]["OrderStatus"];
+            /** Format: int32 */
+            count: number | string;
+        };
         OrderSummaryResponse: {
             /** Format: uuid */
             id: string;
