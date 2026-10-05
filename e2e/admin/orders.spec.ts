@@ -23,7 +23,7 @@ test.describe("AO — admin orders", () => {
     await act(page, shipped.orderId, "pack", { locationId: shop.house1.id });
     await act(page, shipped.orderId, "ship", { waybillNumber: "20450000000000" });
 
-    await page.getByRole("link", { name: "Orders" }).click();
+    await page.getByRole("navigation", { name: "Admin" }).getByRole("link", { name: "Orders" }).click();
     await expect(page.getByRole("tab", { name: /To handle/ })).toHaveAttribute("aria-selected", "true");
     await expect(page.getByRole("tab", { name: /To handle/ })).toContainText(/\d+/);
 

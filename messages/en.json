@@ -37,7 +37,21 @@
     "dashboard": {
       "title": "Welcome back",
       "subtitle": "Signed in as {email}.",
-      "comingSoon": "More sections appear here as they are built."
+      "toHandle": "To handle",
+      "newOrders": "New orders to confirm",
+      "toPack": "Confirmed, to pack",
+      "toShip": "Packed, to ship",
+      "refundsNeeded": "Cancelled, refund needed",
+      "returnsToReceive": "Returns to receive",
+      "returnsToRefund": "Returns to refund",
+      "latestOrders": "Latest orders",
+      "allOrders": "All orders",
+      "noOrders": "No orders yet.",
+      "lowStock": "Low stock ({count} or fewer)",
+      "noLowStock": "Nothing is running low.",
+      "allLowStock": "All low stock",
+      "available": "{count} available",
+      "andMore": "and {count} more"
     },
     "common": {
       "save": "Save",
@@ -552,6 +566,7 @@
         "description": "What is where. Reserved = in open orders; available = sellable minus reserved.",
         "search": "Search SKU or product",
         "onlyInStock": "Only in stock",
+        "lowOnly": "Low stock ({count} or fewer available)",
         "total": "Total",
         "reserved": "Reserved",
         "reservedHint": "Held by open orders",

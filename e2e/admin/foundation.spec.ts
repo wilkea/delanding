@@ -1,5 +1,6 @@
 import { devices, expect, test } from "@playwright/test";
 import { admin, logIn, logInFromStart, requireAdminCredentials } from "./helpers";
+import { createShop, placeOrder } from "./shop";
 
 test.describe("AD — admin foundation", () => {
   test("AD-01 wrong password shows a message and keeps the email", async ({ page }) => {
@@ -60,6 +61,32 @@ test.describe("AD — admin foundation", () => {
       .toHaveAttribute("aria-current", "page");
     await expect(page.getByTestId("current-user")).toHaveText(admin.email);
     await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
+  });
+
+  test("AD-12 dashboard shows what needs attention", async ({ page }) => {
+    requireAdminCredentials();
+    await logInFromStart(page);
+    const shop = await createShop(page, 3);
+    const newTile = page.getByTestId("tile-new").locator("span").last();
+    await expect(newTile).toHaveText(/^\d+$/);
+    const before = Number(await newTile.textContent());
+    const order = await placeOrder(page, shop, [["xl", 2]]);
+
+    await page.reload();
+    await expect(page.getByTestId("tile-new").locator("span").last()).toHaveText(String(before + 1));
+    await expect(page.getByRole("list", { name: "Latest orders" })).toContainText(`#${order.number}`);
+    await expect(page.getByRole("list", { name: "Low stock (2 or fewer)" }).getByRole("listitem").first()).toContainText("available");
+
+    await page.getByRole("link", { name: "All low stock" }).click();
+    await expect(page.getByRole("checkbox", { name: "Low stock (2 or fewer available)" })).toBeChecked();
+    await page.getByLabel("Search SKU or product").fill(`SHD-${shop.id}`.toUpperCase());
+    const xl = page.getByRole("row").filter({ hasText: shop.sku("xl") });
+    await expect(xl.getByRole("cell").last()).toHaveText("1");
+    await expect(page.getByRole("row").filter({ hasText: shop.sku("m") })).toHaveCount(0);
+
+    await page.goto("/admin");
+    await page.getByTestId("tile-new").click();
+    await expect(page).toHaveURL(/\/admin\/orders$/);
   });
 });
 

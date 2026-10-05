@@ -1808,6 +1808,7 @@ export interface paths {
                     search?: string;
                     locationId?: string;
                     onlyInStock?: boolean;
+                    lowStockAt?: number | string;
                     page?: number | string;
                     pageSize?: number | string;
                 };

@@ -24,6 +24,11 @@ When   the admin clicks a variant in the stock list
 Then   a side panel shows its movements newest first: document number and type, location, +/− quantity, reason, cost, note, who and when; the document number opens the document
 Auto:  ✅ e2e: AI-13 AI-02 AI-03 (history newest first, link to the document)
 
+### AI-04 · Low stock
+When   the admin ticks **Low stock** on the Stock page, or clicks "All low stock" on the dashboard
+Then   only variants of published products with 2 or fewer available are listed (reserved and B-grade stock do not count as available)
+Auto:  ✅ e2e: AD-12 dashboard (filter on, XL with 1 available listed, M with 3 not) · backend I-61
+
 ## Documents
 
 ### AI-10 · Receiving stock

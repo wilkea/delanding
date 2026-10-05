@@ -110,7 +110,7 @@ test.describe("AR — admin returns", () => {
       data: { orderId: order.orderId, note: null, lines: [{ variantId: shop.variant("m"), quantity: 1, reason: "ChangedMind", note: null }] },
     });
 
-    await page.getByRole("link", { name: "Returns" }).click();
+    await page.getByRole("navigation", { name: "Admin" }).getByRole("link", { name: "Returns" }).click();
     await page.getByLabel("Order number").fill(String(order.number));
     const row = page.getByRole("row").filter({ hasText: `#${order.number}` });
     await expect(row).toHaveCount(1);

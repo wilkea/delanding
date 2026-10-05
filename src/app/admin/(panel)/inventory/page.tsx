@@ -4,7 +4,8 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { ArrowLeftRight, ChevronLeft, ChevronRight, ClipboardCheck, PackagePlus, Search, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { useDeferredValue, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useDeferredValue, useState } from "react";
 import { PageHeader } from "@/components/admin/page-header";
 import { SimpleSelect } from "@/components/admin/simple-select";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -19,6 +20,7 @@ import { formatDate, formatMoney, Quantity, useLocations, type StockRow } from "
 
 const ALL = "all";
 const pageSize = 50;
+const lowStockAt = 2;
 
 function VariantHistory({ row, onClose }: { row: StockRow | null; onClose: () => void }) {
   const t = useTranslations("admin.inventory");
@@ -62,18 +64,35 @@ function VariantHistory({ row, onClose }: { row: StockRow | null; onClose: () =>
 }
 
 export default function StockPage() {
+  return (
+    <Suspense>
+      <StockList />
+    </Suspense>
+  );
+}
+
+function StockList() {
   const t = useTranslations("admin.inventory");
   const tc = useTranslations("admin.common");
+  const params = useSearchParams();
   const [search, setSearch] = useState("");
   const deferred = useDeferredValue(search.trim());
   const [locationId, setLocationId] = useState(ALL);
-  const [onlyInStock, setOnlyInStock] = useState(true);
+  const [lowOnly, setLowOnly] = useState(params.get("low") === "1");
+  const [onlyInStock, setOnlyInStock] = useState(!lowOnly);
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<StockRow | null>(null);
   const locations = useLocations();
   const active = (locations.data ?? []).filter((l) => l.isActive);
 
-  const filters = { search: deferred || undefined, locationId: locationId === ALL ? undefined : locationId, onlyInStock, page, pageSize };
+  const filters = {
+    search: deferred || undefined,
+    locationId: locationId === ALL ? undefined : locationId,
+    onlyInStock: onlyInStock && !lowOnly,
+    lowStockAt: lowOnly ? lowStockAt : undefined,
+    page,
+    pageSize,
+  };
   const stock = useQuery({
     queryKey: ["stock", filters],
     queryFn: () => call(api.GET("/api/admin/inventory/stock", { params: { query: filters } })),
@@ -124,8 +143,12 @@ export default function StockPage() {
           options={[{ value: ALL, label: t("allLocations") }, ...active.map((l) => ({ value: l.id, label: l.name }))]}
         />
         <label className="flex items-center gap-2 text-sm">
-          <Checkbox checked={onlyInStock} onCheckedChange={(c) => { setOnlyInStock(!!c); setPage(1); }} />
+          <Checkbox checked={onlyInStock && !lowOnly} disabled={lowOnly} onCheckedChange={(c) => { setOnlyInStock(!!c); setPage(1); }} />
           {t("stock.onlyInStock")}
+        </label>
+        <label className="flex items-center gap-2 text-sm">
+          <Checkbox checked={lowOnly} onCheckedChange={(c) => { setLowOnly(!!c); setPage(1); }} />
+          {t("stock.lowOnly", { count: lowStockAt })}
         </label>
       </div>
       <div className="overflow-x-auto rounded-lg border bg-background">
