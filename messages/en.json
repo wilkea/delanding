@@ -290,7 +290,7 @@
       "statuses": { "New": "New", "Confirmed": "Confirmed", "Packed": "Packed", "Shipped": "Shipped", "Delivered": "Delivered", "Cancelled": "Cancelled", "ReturnedToSender": "Returned to sender" },
       "paymentStatuses": { "Unpaid": "Not paid", "Paid": "Paid" },
       "methods": { "CashOnDelivery": "Cash on delivery", "Test": "Test card", "NovaPostBranch": "Nova Post branch" },
-      "next": {
+      "nextStep": {
         "New": "New order — check it (call the customer if needed) and confirm.",
         "Confirmed": "Confirmed — pack it from a house.",
         "Packed": "Packed — hand it to Nova Post and enter the waybill.",

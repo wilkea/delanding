@@ -179,7 +179,7 @@ export function OrderView({ id }: { id: string }) {
 
       <Card>
         <CardContent className="flex flex-wrap items-center gap-3">
-          <span className="text-sm font-medium">{t(`next.${status}`)}</span>
+          <span className="text-sm font-medium">{t(`nextStep.${status}`)}</span>
           <div className="ml-auto flex flex-wrap gap-2">
             {status === "New" && (
               <Button onClick={confirm}><Check className="size-4" />{t("actions.confirm")}</Button>
